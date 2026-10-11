@@ -1,0 +1,766 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>For My Sister | A Special Surprise</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@600;700&family=Great+Vibes&family=Montserrat:wght@300;400;500;600;700&family=Cinzel:wght@500;700&display=swap" rel="stylesheet">
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <style>
+        body {
+            font-family: 'Montserrat', sans-serif;
+            background-color: #fffafb;
+            color: #4a3e3d;
+            overflow-x: hidden;
+        }
+
+        .font-handwriting {
+            font-family: 'Dancing Script', cursive;
+        }
+
+        .font-cursive {
+            font-family: 'Great Vibes', cursive;
+        }
+
+        .font-cinzel {
+            font-family: 'Cinzel', serif;
+        }
+
+        /* Glassmorphism Card */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(255, 255, 255, 0.7);
+            box-shadow: 0 20px 40px rgba(230, 160, 175, 0.18);
+        }
+
+        .glass-card-dark {
+            background: rgba(255, 240, 245, 0.9);
+            backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 200, 215, 0.6);
+            box-shadow: 0 25px 50px rgba(210, 120, 145, 0.22);
+        }
+
+        /* Gift Lid Animation */
+        .gift-box {
+            cursor: pointer;
+            transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+        .gift-box:hover {
+            transform: scale(1.06) rotate(1deg);
+        }
+
+        .gift-lid {
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            transform-origin: top center;
+        }
+
+        .gift-box.open .gift-lid {
+            transform: translateY(-130px) rotate(-25deg);
+            opacity: 0;
+        }
+
+        /* Flower Transition Overlay */
+        #flower-transition {
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+        }
+
+        #flower-transition.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+        .rose-bloom {
+            transform: scale(0) rotate(-45deg);
+            transition: transform 1.2s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.8s ease;
+            opacity: 0;
+        }
+
+        .rose-bloom.bloomed {
+            transform: scale(1.35) rotate(0deg);
+            opacity: 1;
+        }
+
+        /* Parchment Styling */
+        .parchment {
+            background: #fdfbf7;
+            background-image: 
+                radial-gradient(#e0c3b1 0.75px, transparent 0.75px),
+                radial-gradient(#e0c3b1 0.75px, #fdfbf7 0.75px);
+            background-size: 30px 30px;
+            background-position: 0 0, 15px 15px;
+            box-shadow: inset 0 0 40px rgba(185, 135, 110, 0.22), 0 18px 40px rgba(0,0,0,0.08);
+            border: 12px solid #fff;
+        }
+
+        /* Floating Petal Canvas */
+        #petal-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 40;
+        }
+
+        /* Polaroid Effect */
+        .polaroid {
+            background: white;
+            padding: 12px 12px 48px 12px;
+            box-shadow: 0 12px 28px -5px rgba(0, 0, 0, 0.12), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .polaroid:hover {
+            transform: translateY(-10px) rotate(0deg) scale(1.04) !important;
+            box-shadow: 0 22px 40px -5px rgba(225, 105, 135, 0.3);
+            z-index: 20;
+        }
+
+        /* Pulse Heart Animation */
+        @keyframes pulse-gentle {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .heart-pulse {
+            animation: pulse-gentle 2s infinite ease-in-out;
+        }
+
+        /* Keypad Button */
+        .keypad-btn {
+            background: rgba(255, 255, 255, 0.85);
+            border: 1px solid #fbcfe8;
+            transition: all 0.2s ease;
+        }
+        .keypad-btn:active {
+            transform: scale(0.92);
+            background: #fbcfe8;
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #fff5f7;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #fda4af;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body class="min-h-screen text-gray-800 antialiased selection:bg-pink-200 selection:text-pink-900">
+
+    <!-- Floating Rose Petals Canvas -->
+    <canvas id="petal-canvas"></canvas>
+
+    <!-- Audio Player Controller -->
+    <div class="fixed top-5 right-5 z-50 flex items-center gap-2 bg-white/80 backdrop-blur-md px-4 py-2 rounded-full shadow-lg border border-pink-100">
+        <button id="music-toggle" onclick="toggleAudio()" class="text-pink-600 hover:text-pink-700 focus:outline-none flex items-center gap-2 text-sm font-medium">
+            <i id="music-icon" class="fas fa-music animate-spin text-pink-500" style="animation-duration: 3s;"></i>
+            <span id="music-text">Music On</span>
+        </button>
+    </div>
+    <audio id="bg-music" loop>
+        <source src="https://assets.mixkit.co/music/preview/mixkit-a-very-happy-gospel-122.mp3" type="audio/mpeg">
+    </audio>
+
+    <!-- ==========================================
+         STEP 1: GIFT BOX LANDING COVER
+    ========================================== -->
+    <section id="step-1" class="fixed inset-0 z-30 flex flex-col items-center justify-center bg-gradient-to-br from-pink-50 via-rose-100 to-amber-50 p-6 transition-all duration-700">
+        <div class="text-center max-w-lg mx-auto">
+            <span class="inline-block px-4 py-1.5 mb-3 bg-pink-100 text-pink-700 rounded-full text-xs font-semibold tracking-wider uppercase shadow-sm">
+                A Sweet Surprise
+            </span>
+            <h1 class="text-4xl md:text-6xl font-handwriting text-pink-600 mb-2 drop-shadow-sm">
+                For You, My Sister 💕
+            </h1>
+            <p class="text-gray-600 text-sm md:text-base mb-10 font-light">
+                A special memory space crafted with pure love just for you. Tap the gift box below to unwrap!
+            </p>
+
+            <!-- Gift Box Illustration -->
+            <div class="gift-box relative w-56 h-56 mx-auto my-4 group" onclick="triggerFlowerTransition()">
+                <!-- Glow Effect -->
+                <div class="absolute inset-0 bg-pink-300 rounded-full blur-2xl opacity-40 group-hover:opacity-75 transition-opacity"></div>
+                
+                <!-- Gift Lid -->
+                <div class="gift-lid absolute top-0 left-1/2 -translate-x-1/2 w-56 h-16 z-20">
+                    <div class="w-full h-full bg-gradient-to-r from-pink-400 to-rose-400 rounded-t-xl shadow-md border-b-2 border-pink-300 flex items-center justify-center relative">
+                        <!-- Ribbon Top Bow -->
+                        <div class="absolute -top-6 left-1/2 -translate-x-1/2 text-rose-500 text-4xl drop-shadow">
+                            <i class="fas fa-ribbon"></i>
+                        </div>
+                        <div class="w-10 h-full bg-amber-200 opacity-90 shadow-inner"></div>
+                    </div>
+                </div>
+
+                <!-- Gift Base -->
+                <div class="absolute bottom-0 left-1/2 -translate-x-1/2 w-52 h-40 bg-gradient-to-r from-pink-500 to-rose-500 rounded-b-2xl shadow-xl flex justify-center relative overflow-hidden">
+                    <div class="w-10 h-full bg-amber-200 opacity-90 shadow-inner"></div>
+                    <!-- Decorative Sparkles -->
+                    <div class="absolute inset-0 flex items-center justify-around opacity-30 text-white">
+                        <i class="fas fa-sparkles text-xs"></i>
+                        <i class="fas fa-heart text-xs"></i>
+                        <i class="fas fa-sparkles text-xs"></i>
+                    </div>
+                </div>
+            </div>
+
+            <p class="text-xs text-pink-500 mt-6 font-medium tracking-wide animate-bounce">
+                ✨ Tap the Gift Box to Open ✨
+            </p>
+        </div>
+    </section>
+
+    <!-- ==========================================
+         STEP 2: FULL-SCREEN REALISTIC ROSE BLOOM TRANSITION
+    ========================================== -->
+    <div id="flower-transition" class="fixed inset-0 z-50 bg-rose-950 flex items-center justify-center overflow-hidden">
+        <div class="absolute inset-0 grid grid-cols-2 md:grid-cols-3 gap-0 opacity-90">
+            <!-- High Definition Blooming Rose Textures -->
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="Pink Rose">
+            <img src="https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="Peach Rose">
+            <img src="https://images.unsplash.com/photo-1533616688419-b7a585564566?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="White Rose">
+            <img src="https://images.unsplash.com/photo-1562690868-60bbe7293e94?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="Blush Rose">
+            <img src="https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="Soft Rose">
+            <img src="https://images.unsplash.com/photo-1559563458-527698bf5295?auto=format&fit=crop&w=800&q=80" class="rose-bloom object-cover w-full h-full" alt="Vintage Rose">
+        </div>
+        <div class="relative z-10 text-center text-white p-6 bg-black/40 backdrop-blur-md rounded-2xl border border-white/20 max-w-sm mx-4">
+            <div class="inline-block p-4 rounded-full bg-pink-500/30 mb-3 text-pink-200">
+                <i class="fas fa-heart text-3xl animate-ping"></i>
+            </div>
+            <h2 class="text-3xl font-handwriting text-pink-200">Blooming With Love...</h2>
+            <p class="text-xs text-pink-100/80 mt-1">Unfolding your special memory experience</p>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINER -->
+    <main id="main-content" class="min-h-screen opacity-0 transition-opacity duration-1000 pb-20">
+
+        <!-- ==========================================
+             STEP 3: HERO HERO CARD & HEART LOCK TRIGGER
+        ========================================== -->
+        <section class="max-w-4xl mx-auto px-6 pt-16 pb-12 text-center">
+            <div class="glass-card rounded-3xl p-8 md:p-12 relative overflow-hidden">
+                <!-- Floral Corner Accents -->
+                <div class="absolute -top-10 -left-10 text-pink-200 text-8xl opacity-40 pointer-events-none">
+                    <i class="fas fa-spa"></i>
+                </div>
+                <div class="absolute -bottom-10 -right-10 text-rose-200 text-8xl opacity-40 pointer-events-none">
+                    <i class="fas fa-spa"></i>
+                </div>
+
+                <!-- Hero Header Photo -->
+                <div class="relative w-48 h-48 mx-auto mb-6">
+                    <img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" 
+                         alt="Sister Memory" 
+                         class="w-full h-full object-cover rounded-full border-4 border-white shadow-xl">
+                    <div class="absolute -bottom-2 right-2 bg-pink-500 text-white p-3 rounded-full shadow-md">
+                        <i class="fas fa-heart text-lg"></i>
+                    </div>
+                </div>
+
+                <span class="text-xs font-semibold text-pink-600 tracking-widest uppercase">To The World's Best Sister</span>
+                <h2 class="text-3xl md:text-5xl font-handwriting text-gray-800 mt-2 mb-4">
+                    "Side by side or miles apart, sisters will always be connected by heart."
+                </h2>
+                <p class="text-sm md:text-base text-gray-600 max-w-2xl mx-auto font-light leading-relaxed">
+                    Thank you for being my secret keeper, my infinite laughter partner, and my everlasting best friend.
+                </p>
+
+                <!-- Heart Lock Trigger Button -->
+                <div class="mt-8 pt-6 border-t border-pink-100 flex flex-col items-center">
+                    <p class="text-xs text-gray-500 mb-3">Secret Memories Area Locked</p>
+                    <button onclick="openPasskeyModal()" class="heart-pulse px-8 py-3.5 bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 text-white rounded-full shadow-lg shadow-pink-200 flex items-center gap-3 text-sm font-semibold tracking-wide transition-all transform hover:scale-105 active:scale-95">
+                        <i class="fas fa-lock"></i>
+                        <span>Unlock Secret Memories</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==========================================
+             STEP 4: PASSKEY NUMERIC KEYPAD MODAL
+        ========================================== -->
+        <div id="passkey-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm opacity-0 pointer-events-none transition-all duration-300">
+            <div class="glass-card-dark rounded-3xl p-6 md:p-8 max-w-xs w-full text-center relative border border-white/50 shadow-2xl transform scale-90 transition-transform duration-300" id="passkey-card">
+                
+                <button onclick="closePasskeyModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+
+                <div class="w-12 h-12 rounded-full bg-pink-100 text-pink-500 flex items-center justify-center mx-auto mb-3 text-xl shadow-inner">
+                    <i class="fas fa-key"></i>
+                </div>
+
+                <h3 class="text-lg font-bold text-gray-800">Enter Secret PIN</h3>
+                <p class="text-xs text-gray-500 mt-1 mb-4">Hint: Try secret code <span class="font-bold text-pink-600">1234</span></p>
+
+                <!-- PIN Dots Display -->
+                <div class="flex justify-center gap-3 mb-6" id="pin-dots">
+                    <div class="w-3.5 h-3.5 rounded-full border-2 border-pink-400 bg-transparent"></div>
+                    <div class="w-3.5 h-3.5 rounded-full border-2 border-pink-400 bg-transparent"></div>
+                    <div class="w-3.5 h-3.5 rounded-full border-2 border-pink-400 bg-transparent"></div>
+                    <div class="w-3.5 h-3.5 rounded-full border-2 border-pink-400 bg-transparent"></div>
+                </div>
+
+                <div id="pin-error" class="text-xs text-rose-500 font-medium mb-3 hidden">
+                    Incorrect code! Please try again.
+                </div>
+
+                <!-- Keypad 3x4 Grid -->
+                <div class="grid grid-cols-3 gap-3 mb-4">
+                    <button onclick="appendPin('1')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">1</button>
+                    <button onclick="appendPin('2')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">2</button>
+                    <button onclick="appendPin('3')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">3</button>
+                    <button onclick="appendPin('4')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">4</button>
+                    <button onclick="appendPin('5')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">5</button>
+                    <button onclick="appendPin('6')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">6</button>
+                    <button onclick="appendPin('7')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">7</button>
+                    <button onclick="appendPin('8')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">8</button>
+                    <button onclick="appendPin('9')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">9</button>
+                    <button onclick="clearPin()" class="keypad-btn py-3 rounded-2xl text-xs font-semibold text-rose-500">CLEAR</button>
+                    <button onclick="appendPin('0')" class="keypad-btn py-3 rounded-2xl text-gray-700 font-semibold text-lg shadow-sm">0</button>
+                    <button onclick="deletePin()" class="keypad-btn py-3 rounded-2xl text-gray-600"><i class="fas fa-backspace"></i></button>
+                </div>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             STEP 5: FLOWER CIRCLE LOADER ANIMATION
+        ========================================== -->
+        <div id="flower-loader" class="fixed inset-0 z-50 flex flex-col items-center justify-center bg-white/90 backdrop-blur-md hidden">
+            <div class="relative w-28 h-28 flex items-center justify-center">
+                <!-- Rotating Flower Spinner -->
+                <div class="absolute inset-0 border-4 border-dashed border-pink-400 rounded-full animate-spin" style="animation-duration: 8s;"></div>
+                <div class="text-pink-500 text-4xl animate-pulse">
+                    <i class="fas fa-seedling"></i>
+                </div>
+            </div>
+            <h3 class="text-lg font-cinzel text-gray-800 tracking-widest mt-6">UNLOCKING...</h3>
+            <p class="text-xs text-pink-500 font-medium mt-1">Preparing your memory polaroids</p>
+        </div>
+
+        <!-- ==========================================
+             STEP 6: UNLOCKED POLAROID GALLERY (6 MATCHING SCENES)
+        ========================================== -->
+        <section id="unlocked-section" class="max-w-6xl mx-auto px-6 py-12 hidden">
+            <div class="text-center mb-12">
+                <span class="inline-flex items-center gap-1.5 px-3.5 py-1 bg-emerald-100 text-emerald-700 rounded-full text-xs font-semibold tracking-wide">
+                    <i class="fas fa-lock-open text-xs"></i> Unlocked Successfully
+                </span>
+                <h2 class="text-3xl md:text-5xl font-handwriting text-pink-600 mt-2">Our Sisterhood Memories</h2>
+                <p class="text-gray-500 text-sm mt-1">Click any memory polaroid to view full size</p>
+            </div>
+
+            <!-- 6 Polaroid Photo Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 md:gap-10">
+                
+                <!-- Scene 1: Hand Heart Gesture Mirror Selfie -->
+                <div onclick="openLightbox(0)" class="polaroid transform -rotate-2 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-0" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=700&q=80" alt="Hand Heart Selfie" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Hand Heart Selfie 🫶</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Mirror Memories</p>
+                </div>
+
+                <!-- Scene 2: Two Sisters in Park with Hair Bows -->
+                <div onclick="openLightbox(1)" class="polaroid transform rotate-3 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-1" src="https://images.unsplash.com/photo-1511632765486-a01980e01a18?auto=format&fit=crop&w=700&q=80" alt="Sisters in Park with Bow" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Sunny Garden Walk 🎀</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Park Days</p>
+                </div>
+
+                <!-- Scene 3: Sunset Ocean Silhouette -->
+                <div onclick="openLightbox(2)" class="polaroid transform -rotate-1 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-2" src="https://images.unsplash.com/photo-1490578474895-699cd4e2cf59?auto=format&fit=crop&w=700&q=80" alt="Sunset Ocean Silhouette" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Golden Ocean Sunset 🌅</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Beach Evening</p>
+                </div>
+
+                <!-- Scene 4: B&W Hand Holding Outdoors -->
+                <div onclick="openLightbox(3)" class="polaroid transform rotate-2 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-3" src="https://images.unsplash.com/photo-1543807535-eceef0bc6599?auto=format&fit=crop&w=700&q=80" alt="B&W Hand Holding Walk" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Hand in Hand Forever 🤍</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Unbreakable Bond</p>
+                </div>
+
+                <!-- Scene 5: Mountain Peak Scenery -->
+                <div onclick="openLightbox(4)" class="polaroid transform -rotate-3 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-4" src="https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=700&q=80" alt="Mountain Peak View" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Top of the World 🏔️</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Mountain Adventure</p>
+                </div>
+
+                <!-- Scene 6: B&W Laughing Sisters -->
+                <div onclick="openLightbox(5)" class="polaroid transform rotate-1 cursor-pointer">
+                    <div class="aspect-square bg-gray-100 overflow-hidden mb-3 rounded-sm">
+                        <img id="gallery-img-5" src="https://images.unsplash.com/photo-1522850959516-58f958dde2c1?auto=format&fit=crop&w=700&q=80" alt="Laughing Sisters B&W" class="w-full h-full object-cover">
+                    </div>
+                    <p class="font-handwriting text-xl text-center text-gray-700">Endless Giggles & Joy 😄</p>
+                    <p class="text-[10px] text-center text-gray-400 uppercase tracking-widest mt-0.5">Sweet Memories</p>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- LIGHTBOX MODAL -->
+        <div id="lightbox" class="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 hidden">
+            <button onclick="closeLightbox()" class="absolute top-6 right-6 text-white text-2xl hover:text-pink-400">
+                <i class="fas fa-times"></i>
+            </button>
+            <div class="max-w-xl w-full text-center">
+                <img id="lightbox-img" src="" alt="Enlarged Memory" class="max-h-[75vh] mx-auto rounded-lg shadow-2xl border-4 border-white">
+                <p id="lightbox-caption" class="text-white font-handwriting text-2xl mt-4"></p>
+            </div>
+        </div>
+
+        <!-- ==========================================
+             STEP 7: PARCHMENT SISTER LOVE LETTER & LIVE EDIT CONTROLS
+        ========================================== -->
+        <section class="max-w-4xl mx-auto px-6 py-12">
+            <div class="parchment rounded-3xl p-8 md:p-14 relative">
+                <div class="text-center mb-8">
+                    <span class="font-cursive text-3xl text-pink-700">Dearest Sister,</span>
+                    <h3 class="text-2xl md:text-3xl font-handwriting text-gray-800 mt-1">A Letter From My Heart</h3>
+                </div>
+
+                <!-- Letter Body -->
+                <div id="letter-display-text" class="font-handwriting text-xl md:text-2xl leading-relaxed text-gray-800 space-y-4">
+                    <p>
+                        Having you as my sister is one of the greatest blessings of my life. Through every laugh, every secret, and every milestone, you have been my rock and my brightest light.
+                    </p>
+                    <p>
+                        Thank you for always understanding me even when I say nothing at all. I hope this simple page brings a big smile to your face today, just like you bring joy to mine every single day!
+                    </p>
+                </div>
+
+                <div class="mt-8 pt-6 border-t border-amber-200/60 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <div class="font-cursive text-2xl text-pink-800">
+                        Forever & Always, <br>
+                        <span id="letter-sender-display">Your Loving Brother/Sister</span>
+                    </div>
+
+                    <!-- Customizer Toggle Button -->
+                    <button onclick="toggleCustomizer()" class="px-5 py-2.5 bg-pink-100 hover:bg-pink-200 text-pink-700 rounded-full text-xs font-semibold flex items-center gap-2 transition-colors">
+                        <i class="fas fa-pen"></i> Customize Letter & Photos
+                    </button>
+                </div>
+
+                <!-- CUSTOMIZER CONTROLS DRAWER -->
+                <div id="customizer-drawer" class="mt-8 pt-6 border-t border-dashed border-pink-300 hidden">
+                    <h4 class="text-xs font-bold text-gray-600 uppercase tracking-wider mb-4">Edit Surprise Content</h4>
+                    <div class="space-y-4 text-sm">
+                        <div>
+                            <label class="block text-xs text-gray-600 font-medium mb-1">Update Letter Message:</label>
+                            <textarea id="edit-letter-body" rows="3" class="w-full p-3 rounded-xl border border-pink-200 text-xs focus:ring-2 focus:ring-pink-400 focus:outline-none bg-white" placeholder="Type your personal message here..."></textarea>
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 font-medium mb-1">Your Name (Sender):</label>
+                            <input id="edit-sender-name" type="text" class="w-full p-2.5 rounded-xl border border-pink-200 text-xs focus:ring-2 focus:ring-pink-400 focus:outline-none bg-white" placeholder="e.g. Alex">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-gray-600 font-medium mb-1">Replace Polaroid #1 Photo:</label>
+                            <input type="file" accept="image/*" onchange="uploadPhoto(event, 0)" class="block w-full text-xs text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-pink-50 file:text-pink-700 hover:file:bg-pink-100">
+                        </div>
+                        <button onclick="saveLetterChanges()" class="px-6 py-2.5 bg-pink-600 text-white rounded-xl text-xs font-semibold shadow-md hover:bg-pink-700">
+                            Save Letter Updates
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <script>
+        // Initialize Lucide Icons
+        lucide.createIcons();
+
+        /* ==========================================
+           1. FALLING PETALS CANVAS ANIMATION ENGINE
+        ========================================== */
+        const canvas = document.getElementById('petal-canvas');
+        const ctx = canvas.getContext('2d');
+
+        let width = canvas.width = window.innerWidth;
+        let height = canvas.height = window.innerHeight;
+
+        window.addEventListener('resize', () => {
+            width = canvas.width = window.innerWidth;
+            height = canvas.height = window.innerHeight;
+        });
+
+        class Petal {
+            constructor() {
+                this.x = Math.random() * width;
+                this.y = Math.random() * height - height;
+                this.size = Math.random() * 12 + 8;
+                this.speedY = Math.random() * 1.5 + 0.8;
+                this.speedX = Math.random() * 1 - 0.5;
+                this.rotation = Math.random() * 360;
+                this.rotationSpeed = (Math.random() - 0.5) * 2;
+                const colors = ['#fbcfe8', '#f472b6', '#fecdd3', '#fda4af', '#ffffff'];
+                this.color = colors[Math.floor(Math.random() * colors.length)];
+                this.opacity = Math.random() * 0.6 + 0.3;
+            }
+
+            update() {
+                this.y += this.speedY;
+                this.x += Math.sin(this.y * 0.01) + this.speedX;
+                this.rotation += this.rotationSpeed;
+
+                if (this.y > height) {
+                    this.y = -20;
+                    this.x = Math.random() * width;
+                }
+            }
+
+            draw() {
+                ctx.save();
+                ctx.translate(this.x, this.y);
+                ctx.rotate((this.rotation * Math.PI) / 180);
+                ctx.globalAlpha = this.opacity;
+                ctx.fillStyle = this.color;
+
+                ctx.beginPath();
+                ctx.moveTo(0, 0);
+                ctx.bezierCurveTo(-this.size, -this.size / 2, -this.size, this.size, 0, this.size * 1.5);
+                ctx.bezierCurveTo(this.size, this.size, this.size, -this.size / 2, 0, 0);
+                ctx.fill();
+                ctx.restore();
+            }
+        }
+
+        const petals = Array.from({ length: 35 }, () => new Petal());
+
+        function animatePetals() {
+            ctx.clearRect(0, 0, width, height);
+            petals.forEach(petal => {
+                petal.update();
+                petal.draw();
+            });
+            requestAnimationFrame(animatePetals);
+        }
+
+        window.onload = () => {
+            animatePetals();
+        };
+
+        /* ==========================================
+           2. GIFT BOX TO ROSE PORTAL TRANSITION
+        ========================================== */
+        function triggerFlowerTransition() {
+            const giftBox = document.querySelector('.gift-box');
+            giftBox.classList.add('open');
+
+            const flowerOverlay = document.getElementById('flower-transition');
+            const blooms = document.querySelectorAll('.rose-bloom');
+
+            setTimeout(() => {
+                flowerOverlay.classList.add('active');
+                blooms.forEach((bloom, idx) => {
+                    setTimeout(() => {
+                        bloom.classList.add('bloomed');
+                    }, idx * 150);
+                });
+            }, 400);
+
+            setTimeout(() => {
+                document.getElementById('step-1').classList.add('hidden');
+                document.getElementById('main-content').classList.remove('opacity-0');
+                
+                setTimeout(() => {
+                    flowerOverlay.classList.remove('active');
+                }, 800);
+            }, 2500);
+        }
+
+        /* ==========================================
+           3. PASSKEY PIN MODAL LOGIC
+        ========================================== */
+        let currentPin = '';
+        const targetPin = '1234';
+
+        function openPasskeyModal() {
+            const modal = document.getElementById('passkey-modal');
+            const card = document.getElementById('passkey-card');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-90');
+            card.classList.add('scale-100');
+        }
+
+        function closePasskeyModal() {
+            const modal = document.getElementById('passkey-modal');
+            const card = document.getElementById('passkey-card');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-90');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            clearPin();
+        }
+
+        function appendPin(num) {
+            if (currentPin.length < 4) {
+                currentPin += num;
+                updatePinDots();
+                if (currentPin.length === 4) {
+                    verifyPin();
+                }
+            }
+        }
+
+        function clearPin() {
+            currentPin = '';
+            updatePinDots();
+            document.getElementById('pin-error').classList.add('hidden');
+        }
+
+        function deletePin() {
+            currentPin = currentPin.slice(0, -1);
+            updatePinDots();
+        }
+
+        function updatePinDots() {
+            const dots = document.getElementById('pin-dots').children;
+            for (let i = 0; i < 4; i++) {
+                if (i < currentPin.length) {
+                    dots[i].classList.add('bg-pink-500');
+                } else {
+                    dots[i].classList.remove('bg-pink-500');
+                }
+            }
+        }
+
+        function verifyPin() {
+            if (currentPin === targetPin) {
+                closePasskeyModal();
+                showFlowerLoader();
+            } else {
+                document.getElementById('pin-error').classList.remove('hidden');
+                setTimeout(clearPin, 800);
+            }
+        }
+
+        /* ==========================================
+           4. FLOWER LOADER & GALLERY UNLOCK
+        ========================================== */
+        function showFlowerLoader() {
+            const loader = document.getElementById('flower-loader');
+            loader.classList.remove('hidden');
+
+            setTimeout(() => {
+                loader.classList.add('hidden');
+                document.getElementById('unlocked-section').classList.remove('hidden');
+                document.getElementById('unlocked-section').scrollIntoView({ behavior: 'smooth' });
+            }, 2000);
+        }
+
+        /* ==========================================
+           5. POLAROID LIGHTBOX
+        ========================================== */
+        const galleryItems = [
+            { id: 'gallery-img-0', title: 'Hand Heart Selfie 🫶' },
+            { id: 'gallery-img-1', title: 'Sunny Garden Walk 🎀' },
+            { id: 'gallery-img-2', title: 'Golden Ocean Sunset 🌅' },
+            { id: 'gallery-img-3', title: 'Hand in Hand Forever 🤍' },
+            { id: 'gallery-img-4', title: 'Top of the World 🏔️' },
+            { id: 'gallery-img-5', title: 'Endless Giggles & Joy 😄' }
+        ];
+
+        function openLightbox(index) {
+            const item = galleryItems[index];
+            const imgSrc = document.getElementById(item.id).src;
+            
+            document.getElementById('lightbox-img').src = imgSrc;
+            document.getElementById('lightbox-caption').innerText = item.title;
+            document.getElementById('lightbox').classList.remove('hidden');
+        }
+
+        function closeLightbox() {
+            document.getElementById('lightbox').classList.add('hidden');
+        }
+
+        /* ==========================================
+           6. CUSTOMIZER & LOVE LETTER UPDATER
+        ========================================== */
+        function toggleCustomizer() {
+            const drawer = document.getElementById('customizer-drawer');
+            drawer.classList.toggle('hidden');
+        }
+
+        function saveLetterChanges() {
+            const newText = document.getElementById('edit-letter-body').value;
+            const newSender = document.getElementById('edit-sender-name').value;
+
+            if (newText.trim() !== '') {
+                document.getElementById('letter-display-text').innerHTML = `<p>${newText}</p>`;
+            }
+            if (newSender.trim() !== '') {
+                document.getElementById('letter-sender-display').innerText = newSender;
+            }
+
+            toggleCustomizer();
+        }
+
+        function uploadPhoto(event, index) {
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    document.getElementById(`gallery-img-${index}`).src = e.target.result;
+                };
+                reader.readAsDataURL(file);
+            }
+        }
+
+        /* ==========================================
+           7. AMBIENT AUDIO TOGGLE
+        ========================================== */
+        let isPlaying = false;
+        function toggleAudio() {
+            const music = document.getElementById('bg-music');
+            const icon = document.getElementById('music-icon');
+            const text = document.getElementById('music-text');
+
+            if (isPlaying) {
+                music.pause();
+                icon.classList.remove('animate-spin');
+                text.innerText = 'Music Off';
+            } else {
+                music.play().catch(() => {});
+                icon.classList.add('animate-spin');
+                text.innerText = 'Music On';
+            }
+            isPlaying = !isPlaying;
+        }
+    </script>
+</body>
+</html>
